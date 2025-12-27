@@ -287,8 +287,15 @@ export const createAdmin = async (req, res) => {
         const userExists = await User.findOne({ email });
         if (userExists) return res.status(400).json({ message: 'User already exists' });
 
+        // ✅ FIX: Hash the password before saving
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         const user = await User.create({
-            name, email, password, role: 'admin' // Force role to admin
+            name,
+            email,
+            password: hashedPassword, // Save the hashed password
+            role: 'admin'
         });
 
         if (user) {
