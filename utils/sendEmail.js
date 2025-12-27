@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 
 const sendEmail = async (options) => {
-    // 1. Log OTP to console (Always your backup plan!)
+    // 1. Log OTP to console (Always your backup!)
     console.log("📨 ATTEMPTING EMAIL TO:", options.email);
     console.log("🔑 MESSAGE CONTENT (OTP/LINK):", options.message);
 
