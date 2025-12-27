@@ -1,25 +1,20 @@
 import nodemailer from 'nodemailer';
 
 const sendEmail = async (options) => {
-    // 1. Log the content to console IMMEDIATELY (Backup Plan)
-    // This ensures you see the OTP in logs even if email fails 1ms later.
+    // 1. Log OTP to console (Always your backup!)
     console.log("📨 ATTEMPTING EMAIL TO:", options.email);
     console.log("🔑 MESSAGE CONTENT (OTP/LINK):", options.message);
 
     try {
         const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 587,              // ✅ Use 587 (Standard for Cloud) instead of 465
-            secure: false,          // ✅ Must be false for port 587
+            service: 'gmail', // 👈 Let Nodemailer handle host/port automatically
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
             },
             tls: {
-                rejectUnauthorized: false // ✅ Bypass SSL strictness
-            },
-            family: 4,              // ✅ FORCE IPv4 (Crucial Fix for Render Timeouts)
-            connectionTimeout: 10000 // 10 seconds max wait
+                rejectUnauthorized: false // 👈 Keep this to bypass SSL errors
+            }
         });
 
         const mailOptions = {
@@ -34,11 +29,8 @@ const sendEmail = async (options) => {
         console.log("✅ Email Sent Successfully! ID:", info.messageId);
 
     } catch (error) {
-        console.error("❌ EMAIL FAILED (Network/Auth Error):", error.message);
-
-        // ⚠️ IMPORTANT: We DO NOT throw the error here.
-        // We catch it so your Backend DOES NOT CRASH.
-        // The user will see a success message, and you can get the OTP from the logs above.
+        // Log the error but DO NOT crash the server
+        console.error("❌ EMAIL FAILED (Google blocked connection):", error.message);
         return false;
     }
 };
