@@ -1,23 +1,29 @@
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
 
-const sendEmail = async ({ email, subject, message, html }) => {
+const sendEmail = async (options) => {
+    // 1. Create Transporter (Using Brevo SMTP)
     const transporter = nodemailer.createTransport({
-        host: process.env.EMAIL_HOST,
-        port: Number(process.env.EMAIL_PORT),
-        secure: false, // MUST be false for 587
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        secure: false, // true for 465, false for other ports like 587
         auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-        },
+            user: process.env.SMTP_EMAIL, // Your Brevo Login Email
+            pass: process.env.SMTP_PASSWORD // Your Brevo SMTP Key
+        }
     });
 
-    await transporter.sendMail({
-        from: process.env.EMAIL_FROM,
-        to: email,
-        subject,
-        text: message,
-        html,
-    });
+    // 2. Define Email Options
+    const mailOptions = {
+        from: `"PolyLibrary" <${process.env.SMTP_EMAIL}>`, // Sender address
+        to: options.email,
+        subject: options.subject,
+        text: options.message,
+        html: options.html || options.message
+    };
+
+    // 3. Send Email
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Message sent: %s", info.messageId);
 };
 
 export default sendEmail;
